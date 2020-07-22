@@ -6,13 +6,26 @@
 
 **Question**：当我们点击按钮的时候动态给 data 增加的成员是否是响应式数据，如果不是的话，如果把新增成员设置成响应式数据，它的内部原理是什么
 
-**Answer**：
+**Answer**：不是响应式数据，可以通过 $set 方法将属性设置为响应式数据，内部原理是调用 defineReactive 方法，将属性设置为响应式数据，然后再调用 notify 方法通知视图。
 
 ### 第二题
 
 **Question**：请简述 Diff 算法的执行过程
 
 **Answer**：
+
+- diff 的过程就是调用 patch 函数，比较新旧节点
+- patch 函数接收两个参数 oldVnode 和 Vnode，调用 sameVnode 函数判断 oldVnode 和 Vnode 是否相同，根据 sameVnode 返回结果分为两种情况：
+  - true：执行  patchVnode
+  - false：用  Vnode 替换 oldVnode
+- patchVnode 这个函数做了以下事情：
+  - 获取对应的真实 dom 属性 elm
+  - 判断 oldVnode 和 Vnode 是否完全相同，相同直接返回
+  - 如果它们都有文本节点并且内容不相同，那么将 elm 的文本节点设置为 Vnode 的文本节点
+  - 如果 Vnode 有文本节点内容为空，而 oldVnode 文本节点不为空，则设置 elm 文本节点内容为空
+  - 如果 Vnode 有子节点，而 oldVnode 没有子节点，则将 Vnode 的子节点真实化后添加到 elm
+  - 如果 Vnode 没有子节点，而 oldVnode 有子节点，则删除 elm 的子节点
+  - 如果两者都有子节点，则执行 updateChildren 函数比较子节点，更新 elm
 
 ## 二、编程题
 

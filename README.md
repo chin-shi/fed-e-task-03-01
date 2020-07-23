@@ -35,6 +35,30 @@
 
 **Answer**：
 
+详细代码在code文件中，部分修改代码如下：
+
+```js
+// 修改router-link跳转
+clickHandle (e) {
+  // 修改hash
+  window.location.hash = this.to
+  this.$router.data.current = this.to
+  e.preventDefault()
+}
+// ...
+// 修改注册事件
+initEvent () {
+  // 初始化页面加载时，设置hash值为'/'
+  window.addEventListener('load', () => {
+    window.location.hash = '/'
+  })
+  // 监听hashchange事件，保存当前路由
+  window.addEventListener('hashchange', () => {
+    this.data.current = window.location.hash.slice(1)
+  })
+}
+```
+
 ### 第二题
 
 **Question**：在模拟 Vue.js 响应式源码的基础上实现 v-html 指令，以及 v-on 指令。

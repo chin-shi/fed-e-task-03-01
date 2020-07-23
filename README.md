@@ -65,6 +65,80 @@ initEvent () {
 
 **Answer**：
 
+详细代码在code文件中，部分修改代码如下：
+
+```html
+<!-- index.html -->
+<div v-html="content">
+  <h1>Hi</h1>
+</div>
+<h1>v-on</h1>
+<button v-on:click="handleClick">v-on</button>
+<!-- 
+	content: "<h4>hello world, v-html</h4>",
+	methods: {
+		handleClick() {
+			alert('v-on')
+		}
+	}
+-->
+```
+
+```js
+// compiler.js
+// v-html
+htmlUpdater(node, value, key) {
+  // 先循环删除node下所有节点
+  while (node.firstChild) {
+    node.removeChild(node.firstChild)
+  }
+  // 将value赋值给innerHTML
+  node.innerHTML = value
+  new Watcher(this.vm, key, (newValue) => {
+    node.innerHTML = newValue
+  })
+}
+
+// ...
+
+// compilerElement
+// 编译元素节点，处理指令
+compilerElement(node) {
+  // 遍历所有的属性节点
+  Array.from(node.attributes).forEach((attr) => {
+    // 判断是否是指令
+    let attrName = attr.name
+    if (this.isDireactive(attrName)) {
+      // v-text --> text
+      attrName = attrName.substr(2)
+      const key = attr.value
+      if (this.isEventDirective(attrName)) {
+        this.eventHandler(node, key, attrName)
+      } else {
+        this.update(node, key, attrName)
+      }
+    }
+  })
+}
+// ...
+
+// 判断元素属性是否是事件指令
+isEventDirective(attrName) {
+  return attrName.indexOf('on') === 0
+}
+
+// v-on事件处理
+eventHandler(node, key, attrName) {
+  const eventType = attrName.split(':')[1]
+  const fn = this.vm.$options.methods && this.vm.$options.methods[key]
+  if (eventType && fn) {
+    node.addEventListener(eventType, fn.bind(this.vm), false)
+  }
+}
+```
+
+
+
 ### 第三题
 
 **Question**：参考 Snabbdom 提供的电影列表的示例，利用Snabbdom 实现类似的效果
